@@ -9,6 +9,7 @@ influx
 > create user teco with password 'teco1133'
 > grant all privileges to teco  //授權全部的資料庫(等於管理者帳號)...
 > CREATE DATABASE chiler
+> USE chiler
 > SELECT * FROM "MAC_013157800087586"
 
 
