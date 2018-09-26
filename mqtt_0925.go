@@ -4,6 +4,12 @@ DESCRIPTION   Mqtt Client封包處埋.....
 HardWare      ***
 Copyright   : 2018 TECO Ltd.
 All Rights Reserved
+//influxdb使用...
+influx
+> create user teco with password 'teco1133'
+> grant all privileges to teco  //授權全部的資料庫(等於管理者帳號)...
+
+
 ***********************************************************************************/
 /***********************************************************************************
 Revision History
@@ -31,10 +37,11 @@ import (
 
 //
 const (
-	MyDB          = "MAC_5010e9e"
-	username      = "thomas"
-	password      = "teco1133"
-	MyMeasurement = "cpu_usage"
+	MyDB     = "MAC_5010e9e"
+	username = "teco"
+	password = "teco1133"
+
+//	MyMeasurement = "cpu_usage"
 )
 
 //設定MQTT接收的Buffer...
@@ -111,13 +118,14 @@ func getRandomClientId() string {
 //influx tets
 func connInflux() client.Client {
 	cli, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     "http://127.0.0.1:8086",
+		Addr:     "http://localhost:8086",
 		Username: username,
 		Password: password,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("influx pass\n")
 	return cli
 
 }
