@@ -8,6 +8,8 @@ All Rights Reserved
 influx
 > create user teco with password 'teco1133'
 > grant all privileges to teco  //授權全部的資料庫(等於管理者帳號)...
+> CREATE DATABASE chiler
+> SELECT * FROM "MAC_013157800087586"
 
 
 ***********************************************************************************/
@@ -51,6 +53,8 @@ const (
 
 var Knt int
 var Rxdata [100]uint8
+var testData float32
+var data [13]float32
 
 // var outgoing chan *MQTTMessage
 
@@ -159,22 +163,36 @@ func main() {
 	}
 	fmt.Printf("pass creat db\n")
 
+	data[0] = 27.8
+	data[1] = 26.8
+	data[2] = 14.6
+	data[3] = 16.7
+	data[4] = 33.8
+	data[5] = 54.6
+	data[6] = 4.15
+	data[7] = 4.18
+	data[8] = 7.75
+	data[9] = 2.8
+	data[10] = 380.0
+	data[11] = 0.0
+	data[12] = 80.8
+
 	// Create a point and add to batch
 	tags := map[string]string{"location": "bank"}
 	fields := map[string]interface{}{
-		"water_temp_in":      27.7,
-		"water_temp_out":     26.6,
-		"ice_temp_in":        14.6,
-		"ice_temp_out":       16.6,
-		"left_temp_out":      33.6,
-		"right_temp_out":     54.6,
-		"left_pressor_high":  4.16,
-		"left_pressor_low":   4.16,
-		"right_pressor_high": 7.75,
-		"right_pressor_low":  2.8,
-		"voltage":            380.0,
-		"left_amp":           0.0,
-		"right_amp":          80.6,
+		"water_temp_in":      data[0],
+		"water_temp_out":     data[1],
+		"ice_temp_in":        data[2],
+		"ice_temp_out":       data[3],
+		"left_temp_out":      data[4],
+		"right_temp_out":     data[5],
+		"left_pressor_high":  data[6],
+		"left_pressor_low":   data[7],
+		"right_pressor_high": data[8],
+		"right_pressor_low":  data[9],
+		"voltage":            data[10],
+		"left_amp":           data[11],
+		"right_amp":          data[12],
 	}
 
 	pt, err := client.NewPoint("MAC_013157800087586", tags, fields, time.Now())
