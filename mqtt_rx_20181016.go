@@ -54,6 +54,7 @@ const (
 )
 
 var Knt int
+var awsKnt int
 var Rxdata [100]uint8
 var testData float32
 var data [13]float32
@@ -102,6 +103,17 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 	*/
 	//	fmt.Println(strings.Contains(msg.Payload(), "data")) //true
+}
+
+var awsfun MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
+	//	mQTTMessage := &MQTTMessage{msg, m}
+	//	fmt.Printf("TOPIC: %s\n", msg.Topic())
+	//var indexAwsMessage int
+	awsKnt++
+	if awsKnt > 65530 {
+		awsKnt = 0
+	}
+	fmt.Printf("awsMSG: %d\n", awsKnt)
 }
 
 /*
@@ -240,7 +252,7 @@ func main() {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	} else {
-		fmt.Printf("Connected to server\n")
+		fmt.Printf("Connected to 140.124.182.66 server\n")
 	}
 
 	//subscribe to the topic "iaq" and request messages to be delivered
@@ -273,14 +285,14 @@ func main() {
 	awsTopic := "iaq-test"
 	awsMQTTBroker := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
 	awsMQTTBroker.SetClientID(clientId)
-	awsMQTTBroker.SetDefaultPublishHandler(f)
+	awsMQTTBroker.SetDefaultPublishHandler(awsfun)
 
 	//create and start a client using the above ClientOptions
-	awsClient := MQTT.NewClient(opts)
+	awsClient := MQTT.NewClient(awsMQTTBroker)
 	if awsToken := awsClient.Connect(); awsToken.Wait() && awsToken.Error() != nil {
 		panic(awsToken.Error())
 	} else {
-		fmt.Printf("Connected to server\n")
+		fmt.Printf("Connected to 13.114.3.126 server\n")
 	}
 
 	if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
@@ -292,7 +304,7 @@ func main() {
 	//from the server after sending each message
 	for i := 0; i < 1; i++ {
 		text := fmt.Sprintf("this is msg #%d!\n", i)
-		awsToken := client.Publish(awsTopic, 0, false, text)
+		awsToken := awsClient.Publish(awsTopic, 0, false, text)
 		awsToken.Wait()
 	}
 
