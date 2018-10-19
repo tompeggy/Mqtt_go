@@ -90,6 +90,37 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		fmt.Printf("Rxdata: %s\n", Rxdata)
 		//寫入influxdb...
 
+		//建立第二個MQTT Cliend...
+		awsTopic := "iaq-test"
+		clientId := getRandomClientId()
+		fmt.Printf("clientId: %s\n", clientId)
+		awsMQTTBroker := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
+		awsMQTTBroker.SetClientID(clientId)
+		awsMQTTBroker.SetDefaultPublishHandler(awsfun)
+
+		//create and start a client using the above ClientOptions
+		awsClient := MQTT.NewClient(awsMQTTBroker)
+		if awsToken := awsClient.Connect(); awsToken.Wait() && awsToken.Error() != nil {
+			panic(awsToken.Error())
+		} else {
+			fmt.Printf("Connected to 13.114.3.126 server\n")
+		}
+
+		if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
+			fmt.Println(awsToken.Error())
+			awsToken.Wait()
+			//	os.Exit(1)
+		}
+		//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
+		//from the server after sending each message
+		for i := 0; i < 1; i++ {
+			text := fmt.Sprintf("Rxdata: %s\n", Rxdata)
+			awsToken := awsClient.Publish(awsTopic, 0, false, text)
+			awsToken.Wait()
+		}
+
+		time.Sleep(5 * time.Second)
+
 	}
 
 	/*
@@ -236,11 +267,10 @@ func main() {
 	//create a ClientOptions struct setting the broker address, clientid, turn
 	//off trace output and set the default message handler
 	opts := MQTT.NewClientOptions().AddBroker("tcp://140.124.182.66:1883")
-	//opts := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
 
+	//opts := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
 	//opts.SetClientID("u89-0001")
 	opts.SetClientID(clientId)
-
 	opts.SetDefaultPublishHandler(f)
 	//
 
@@ -280,36 +310,36 @@ func main() {
 			os.Exit(1)
 		}
 	*/
+	/*
+		//建立第二個MQTT Cliend...
+		awsTopic := "iaq-test"
+		awsMQTTBroker := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
+		awsMQTTBroker.SetClientID(clientId)
+		awsMQTTBroker.SetDefaultPublishHandler(awsfun)
 
-	//建立第二個MQTT Cliend...
-	awsTopic := "iaq-test"
-	awsMQTTBroker := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
-	awsMQTTBroker.SetClientID(clientId)
-	awsMQTTBroker.SetDefaultPublishHandler(awsfun)
+		//create and start a client using the above ClientOptions
+		awsClient := MQTT.NewClient(awsMQTTBroker)
+		if awsToken := awsClient.Connect(); awsToken.Wait() && awsToken.Error() != nil {
+			panic(awsToken.Error())
+		} else {
+			fmt.Printf("Connected to 13.114.3.126 server\n")
+		}
 
-	//create and start a client using the above ClientOptions
-	awsClient := MQTT.NewClient(awsMQTTBroker)
-	if awsToken := awsClient.Connect(); awsToken.Wait() && awsToken.Error() != nil {
-		panic(awsToken.Error())
-	} else {
-		fmt.Printf("Connected to 13.114.3.126 server\n")
-	}
+		if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
+			fmt.Println(awsToken.Error())
+			awsToken.Wait()
+			//	os.Exit(1)
+		}
+		//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
+		//from the server after sending each message
+		for i := 0; i < 1; i++ {
+			text := fmt.Sprintf("this is msg #%d!\n", i)
+			awsToken := awsClient.Publish(awsTopic, 0, false, text)
+			awsToken.Wait()
+		}
 
-	if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
-		fmt.Println(awsToken.Error())
-		awsToken.Wait()
-		//	os.Exit(1)
-	}
-	//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
-	//from the server after sending each message
-	for i := 0; i < 1; i++ {
-		text := fmt.Sprintf("this is msg #%d!\n", i)
-		awsToken := awsClient.Publish(awsTopic, 0, false, text)
-		awsToken.Wait()
-	}
-
-	time.Sleep(5 * time.Second)
-
+		time.Sleep(5 * time.Second)
+	*/
 	// Wait for receiving a signal.
 	//<-sigc
 	s := <-sigc
