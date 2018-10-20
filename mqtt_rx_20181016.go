@@ -29,6 +29,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -80,7 +81,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//fmt.Println(strings.Contains(s, "data"))
 	//比較字串,並接收資料...
 	//if strings.Contains(s, "0000000005010e9e") {
-	if strings.Contains(s, "013157800087586") {
+	if strings.Contains(s, "013157800087578") {
 		indexMessage = strings.Index(s, "data")
 		fmt.Printf("index %d\n", indexMessage)
 		//for i := 0; i < 58; i++ {
@@ -105,6 +106,26 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		} else {
 			fmt.Printf("Connected to 13.114.3.126 server\n")
 		}
+
+		//設定時間格式
+		t := time.Now()
+		//var timestamp int64 = 1498003200
+		//fmt.Println(t.UTC().Format(time.UnixDate))
+		//ok
+		fmt.Println(t.Format("2006-01-02 03:04:05"))
+
+		timestamp := strconv.FormatInt(t.UTC().UnixNano(), 10)
+		//timestamp := time.Now()
+		//fmt.Println(timestamp)
+		timestamp = timestamp[:10]
+		i, err := strconv.ParseInt(timestamp, 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		tm := time.Unix(i, 0)
+		//fmt.Println(tm)
+		//tm2 := time.Unix(timestamp, 0)
+		fmt.Println(tm.Format("2006-01-02 03:04:05"))
 
 		if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
 			fmt.Println(awsToken.Error())
@@ -240,7 +261,7 @@ func main() {
 		"right_amp":          data[12],
 	}
 
-	pt, err := client.NewPoint("MAC_013157800087586", tags, fields, time.Now())
+	pt, err := client.NewPoint("MAC_013157800087578", tags, fields, time.Now())
 	if err != nil {
 		log.Fatal(err)
 	}
