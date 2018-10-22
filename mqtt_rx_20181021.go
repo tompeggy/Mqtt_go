@@ -57,8 +57,20 @@ const (
 var Knt int
 var awsKnt int
 var Rxdata [100]uint8
+var txdata [148]rune
+
 var testData float32
 var data [13]float32
+
+func StringToRuneArr(s string, arr []rune) {
+	src := []rune(s)
+	for i, v := range src {
+		if i >= len(arr) {
+			break
+		}
+		arr[i] = v
+	}
+}
 
 // var outgoing chan *MQTTMessage
 
@@ -67,6 +79,7 @@ var data [13]float32
 var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//	mQTTMessage := &MQTTMessage{msg, m}
 	//	fmt.Printf("TOPIC: %s\n", msg.Topic())
+	//txdata[0] = "{\"address\":\"0013157800087578\",\"data\":\"1010001a19950000000001\",\"time\":\"2018-10-21 23:34:52\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
 	var indexMessage int
 	Knt++
 	if Knt > 65530 {
@@ -81,7 +94,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//fmt.Println(strings.Contains(s, "data"))
 	//比較字串,並接收資料...
 	//if strings.Contains(s, "0000000005010e9e") {
-	if strings.Contains(s, "013157800087578") {
+	if strings.Contains(s, "013157800087560") {
 		indexMessage = strings.Index(s, "data")
 		fmt.Printf("index %d\n", indexMessage)
 		//for i := 0; i < 58; i++ {
@@ -92,7 +105,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		//寫入influxdb...
 
 		//建立第二個MQTT Cliend...
-		awsTopic := "iaq-test"
+		awsTopic := "iaq"
 		clientId := getRandomClientId()
 		fmt.Printf("clientId: %s\n", clientId)
 		awsMQTTBroker := MQTT.NewClientOptions().AddBroker("tcp://13.114.3.126:1883")
@@ -112,7 +125,10 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		//var timestamp int64 = 1498003200
 		//fmt.Println(t.UTC().Format(time.UnixDate))
 		//ok
-		fmt.Println(t.Format("2006-01-02 03:04:05"))
+		//3 and 15 for hour PM...
+		//2016 for year
+		getTimer := t.Format("2006-01-02 15:04:05")
+		fmt.Println(getTimer)
 
 		timestamp := strconv.FormatInt(t.UTC().UnixNano(), 10)
 		//timestamp := time.Now()
@@ -132,13 +148,21 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			awsToken.Wait()
 			//	os.Exit(1)
 		}
+
+		//字串處理
+		awsstr := "{\"address\":\"0013157800087560\",\"data\":\"3000000000000000000960\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
+		awsstr = strings.Replace(awsstr, "*******************", getTimer, -1)
+		//var arr [10]rune
+		StringToRuneArr(awsstr, txdata[:])
+
+		fmt.Println(string(txdata[:]))
+
 		//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
 		//from the server after sending each message
-		for i := 0; i < 1; i++ {
-			text := fmt.Sprintf("Rxdata: %s\n", Rxdata)
-			awsToken := awsClient.Publish(awsTopic, 0, false, text)
-			awsToken.Wait()
-		}
+		//fmt.Printf("txdata: %s\n", txdata)
+		//text := fmt.Sprintf("%s", txdata)
+		awsToken := awsClient.Publish(awsTopic, 0, false, string(txdata[:]))
+		awsToken.Wait()
 
 		time.Sleep(5 * time.Second)
 
