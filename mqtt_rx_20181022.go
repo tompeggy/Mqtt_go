@@ -167,6 +167,10 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		awsstr := "{\"address\":\"MMMMMMMMMMMMMMMM\",\"data\":\"######################\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":700000000}"
 		awsstr = strings.Replace(awsstr, "MMMMMMMMMMMMMMMM", string(rxMac[:]), -1)
 		awsstr = strings.Replace(awsstr, "*******************", getTimer, -1)
+		if rxdata[0] == '0' && rxdata[1] == '1' {
+			awsstr = strings.Replace(awsstr, "######################", "1010001a19950000000001", -1)
+		}
+
 		if rxdata[0] == '0' && rxdata[1] == '3' {
 			awsTxData[0] = '3'
 			awsTxData[1] = '0'
