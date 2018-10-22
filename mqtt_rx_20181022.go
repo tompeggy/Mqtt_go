@@ -156,15 +156,15 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		//fmt.Println(tm)
 		//tm2 := time.Unix(timestamp, 0)
 		fmt.Println(tm.Format("2006-01-02 03:04:05"))
-
-		if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
-			fmt.Println(awsToken.Error())
-			awsToken.Wait()
-			//	os.Exit(1)
-		}
-
+		/*
+			if awsToken := awsClient.Subscribe(awsTopic, 0, nil); awsToken.Wait() && awsToken.Error() != nil {
+				fmt.Println(awsToken.Error())
+				awsToken.Wait()
+				//	os.Exit(1)
+			}
+		*/
 		//字串處理
-		awsstr := "{\"address\":\"MMMMMMMMMMMMMMMM\",\"data\":\"######################\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
+		awsstr := "{\"address\":\"MMMMMMMMMMMMMMMM\",\"data\":\"######################\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":700000000}"
 		awsstr = strings.Replace(awsstr, "MMMMMMMMMMMMMMMM", string(rxMac[:]), -1)
 		awsstr = strings.Replace(awsstr, "*******************", getTimer, -1)
 		if rxdata[0] == '0' && rxdata[1] == '3' {
