@@ -20,6 +20,7 @@ DD.MM.YYYY OSO-UID Description..
 30.08.2018 Thomas start work..
 25.09.2018 Thomas 修改成NB-IoT方案,import github用指令 go get 加入libery...
 16.10.2018 Thomas 修改收NB-IoT,打到influx...
+22.10.2018 Thomas 本版可以針對特定的MAC,把Data上傳到AWS
 ***********************************************************************************/
 package main
 
