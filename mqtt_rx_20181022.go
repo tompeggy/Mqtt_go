@@ -58,8 +58,10 @@ const (
 
 var Knt int
 var awsKnt int
-var Rxdata [100]uint8
+var rxdata [100]uint8
 var txdata [148]rune
+var rxMac [16]uint8
+var awsTxData [22]uint8
 
 var testData float32
 var data [13]float32
@@ -95,15 +97,25 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//	fmt.Printf("%s\n", s)
 	//fmt.Println(strings.Contains(s, "data"))
 	//比較字串,並接收資料...
-	//if strings.Contains(s, "0000000005010e9e") {
-	if strings.Contains(s, "013157800087560") {
+	//if strings.Contains(s, "data\":\"0311") {
+	//if strings.Contains(s, "013157800087560") {
+	if strings.Contains(s, "data") {
+		indexMessage = strings.Index(s, "mac")
+		rxMac[0] = '0'
+		fmt.Printf("index %d\n", indexMessage)
+		for i := 0; i < 15; i++ {
+			rxMac[i+1] = s[indexMessage+i+6]
+		}
+		fmt.Printf("MAC: %s\n", rxMac)
+
 		indexMessage = strings.Index(s, "data")
 		fmt.Printf("index %d\n", indexMessage)
 		//for i := 0; i < 58; i++ {
 		for i := 0; i < 68; i++ {
-			Rxdata[i] = s[indexMessage+i+7]
+			rxdata[i] = s[indexMessage+i+7]
 		}
-		fmt.Printf("Rxdata: %s\n", Rxdata)
+		fmt.Printf("Rxdata: %s\n", rxdata)
+
 		//寫入influxdb...
 
 		//建立第二個MQTT Cliend...
@@ -152,8 +164,39 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 
 		//字串處理
-		awsstr := "{\"address\":\"0013157800087560\",\"data\":\"3000000000000000000960\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
+		awsstr := "{\"address\":\"MMMMMMMMMMMMMMMM\",\"data\":\"######################\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
+		awsstr = strings.Replace(awsstr, "MMMMMMMMMMMMMMMM", string(rxMac[:]), -1)
 		awsstr = strings.Replace(awsstr, "*******************", getTimer, -1)
+		if rxdata[0] == '0' && rxdata[1] == '3' {
+			awsTxData[0] = '3'
+			awsTxData[1] = '0'
+			//HCHO
+			awsTxData[2] = rxdata[4]
+			awsTxData[3] = rxdata[5]
+			awsTxData[4] = rxdata[6]
+			awsTxData[5] = rxdata[7]
+			//Co2
+			awsTxData[6] = rxdata[8]
+			awsTxData[7] = rxdata[9]
+			awsTxData[8] = rxdata[10]
+			awsTxData[9] = rxdata[11]
+			//Co
+			awsTxData[10] = rxdata[20]
+			awsTxData[11] = rxdata[21]
+			awsTxData[12] = rxdata[22]
+			awsTxData[13] = rxdata[23]
+			//PM2.5
+			awsTxData[14] = rxdata[28]
+			awsTxData[15] = rxdata[29]
+			awsTxData[16] = rxdata[30]
+			awsTxData[17] = rxdata[31]
+			//Temperature
+			awsTxData[18] = rxdata[12]
+			awsTxData[19] = rxdata[13]
+			awsTxData[20] = rxdata[14]
+			awsTxData[21] = rxdata[15]
+			awsstr = strings.Replace(awsstr, "######################", string(awsTxData[:]), -1)
+		}
 		//var arr [10]rune
 		StringToRuneArr(awsstr, txdata[:])
 
