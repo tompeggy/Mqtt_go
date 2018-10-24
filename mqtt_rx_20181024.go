@@ -207,9 +207,18 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		//fmt.Printf("txdata: %s\n", txdata)
 		//text := fmt.Sprintf("%s", txdata)
 		awsToken := awsClient.Publish(awsTopic, 0, false, string(txdata[:]))
-		awsToken.Wait()
-
-		time.Sleep(5 * time.Second)
+		//awsToken.Wait()
+		for !awsToken.WaitTimeout(3 * time.Second) {
+		}
+		if err := awsToken.Error(); err != nil {
+			log.Fatal(err)
+		}
+                //
+		awsClient.Unsubscribe(awsTopic)
+		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
+			fmt.Println(awsToken.Error())
+		}
+		//time.Sleep(5 * time.Second)
 
 	}
 
