@@ -213,7 +213,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		if err := awsToken.Error(); err != nil {
 			log.Fatal(err)
 		}
-                //
+                //建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
 		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
 			fmt.Println(awsToken.Error())
