@@ -167,6 +167,9 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		awsstr := "{\"address\":\"MMMMMMMMMMMMMMMM\",\"data\":\"######################\",\"time\":\"*******************\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
 		awsstr = strings.Replace(awsstr, "MMMMMMMMMMMMMMMM", string(rxMac[:]), -1)
 		awsstr = strings.Replace(awsstr, "*******************", getTimer, -1)
+		if rxdata[0] == '0' && rxdata[1] == '1' {
+			awsstr = strings.Replace(awsstr, "######################", "1010001a19950000000001", -1)
+		}
 		if rxdata[0] == '0' && rxdata[1] == '3' {
 			awsTxData[0] = '3'
 			awsTxData[1] = '0'
@@ -213,7 +216,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		if err := awsToken.Error(); err != nil {
 			log.Fatal(err)
 		}
-                //建立mqtt結束...
+		//建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
 		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
 			fmt.Println(awsToken.Error())
