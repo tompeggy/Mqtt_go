@@ -138,14 +138,15 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		*/
 		awsToken := awsClient.Connect()
 		for !awsToken.WaitTimeout(3 * time.Second) {
-
+			fmt.Printf("Wait connected to 13.114.3.126 server\n")
 		}
 		if err := awsToken.Error(); err != nil {
 			log.Fatal(err)
-
+			fmt.Printf("No connected to 13.114.3.126 server\n")
 			awsClient.Unsubscribe(awsTopic)
 			if awsEndToken := awsClient.Unsubscribe(awsTopic); awsEndToken.Wait() && awsEndToken.Error() != nil {
-				fmt.Println(awsToken.Error())
+				fmt.Println(awsEndToken.Error())
+				fmt.Printf("awsEndToken Error 13.114.3.126 server\n")
 			}
 
 		} else {
@@ -238,19 +239,9 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 		//建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
-		awsEndToken := awsClient.Unsubscribe(awsTopic)
-		for !awsEndToken.WaitTimeout(3 * time.Second) {
-
+		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
+			fmt.Println(awsToken.Error())
 		}
-		if err := awsEndToken.Error(); err != nil {
-			log.Fatal(err)
-			fmt.Println(awsEndToken.Error())
-		}
-		/*
-			awsToken.Wait() && awsToken.Error() != nil {
-				fmt.Println(awsToken.Error())
-			}
-		*/
 		//time.Sleep(5 * time.Second)
 
 	}
