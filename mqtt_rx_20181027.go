@@ -238,9 +238,19 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 		//建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
-		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
-			fmt.Println(awsToken.Error())
+		awsEndToken := awsClient.Unsubscribe(awsTopic)
+		for !awsEndToken.WaitTimeout(3 * time.Second) {
+
 		}
+		if err := awsEndToken.Error(); err != nil {
+			log.Fatal(err)
+			fmt.Println(awsEndToken.Error())
+		}
+		/*
+			awsToken.Wait() && awsToken.Error() != nil {
+				fmt.Println(awsToken.Error())
+			}
+		*/
 		//time.Sleep(5 * time.Second)
 
 	}
