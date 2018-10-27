@@ -239,6 +239,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 		//建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
+		fmt.Printf("awsCliend is closed")
 		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
 			fmt.Println(awsToken.Error())
 		}
