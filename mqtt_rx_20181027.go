@@ -84,6 +84,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 	//	mQTTMessage := &MQTTMessage{msg, m}
 	//	fmt.Printf("TOPIC: %s\n", msg.Topic())
 	//txdata[0] = "{\"address\":\"0013157800087578\",\"data\":\"1010001a19950000000001\",\"time\":\"2018-10-21 23:34:52\",\"gwid\":\"00001c497bcaafea\",\"rssi\":-77,\"channel\":922625000}"
+
 	var indexMessage int
 	Knt++
 	if Knt > 65530 {
@@ -138,7 +139,7 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		*/
 		awsToken := awsClient.Connect()
 		for !awsToken.WaitTimeout(3 * time.Second) {
-			fmt.Printf("Wait connected to 13.114.3.126 server\n")
+			fmt.Printf("Wait time out connected to 13.114.3.126 server\n")
 		}
 		if err := awsToken.Error(); err != nil {
 			log.Fatal(err)
@@ -150,7 +151,9 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 
 		} else {
+
 			fmt.Printf("Connected to 13.114.3.126 server\n")
+
 		}
 
 		//設定時間格式
@@ -236,13 +239,30 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 		if err := awsPublishToken.Error(); err != nil {
 			log.Fatal(err)
+			fmt.Printf("awsPublishToken error\n")
+		} else {
+
+			fmt.Printf("Aws push finish\n")
+
 		}
+
 		//建立mqtt結束...
 		awsClient.Unsubscribe(awsTopic)
-		fmt.Printf("awsCliend is closed")
-		if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
-			fmt.Println(awsToken.Error())
+		fmt.Printf("awsCliend is closed\n")
+		awsClientEndToken := awsClient.Unsubscribe(awsTopic)
+		for !awsClientEndToken.WaitTimeout(3 * time.Second) {
+
 		}
+		if err := awsClientEndToken.Error(); err != nil {
+			log.Fatal(err)
+			fmt.Printf("awsClientEndToken error\n")
+		}
+		awsClient.Disconnect(250)
+		/*
+			if awsToken := awsClient.Unsubscribe(awsTopic); awsToken.Wait() && awsToken.Error() != nil {
+				fmt.Println(awsToken.Error())
+			}
+		*/
 		//time.Sleep(5 * time.Second)
 
 	}
