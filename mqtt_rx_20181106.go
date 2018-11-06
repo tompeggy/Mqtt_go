@@ -207,11 +207,11 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			//fan drict...
 			awsTxData[5] = '0'
 			//Room temperature setting...
-			awsTxData[6] = '1'
-			awsTxData[7] = 'a'
+			awsTxData[6] = rxdata[58]
+			awsTxData[7] = rxdata[59]
 			//Room temperature...
-			awsTxData[8] = rxdata[58]
-			awsTxData[9] = rxdata[59]
+			awsTxData[8] = '1'
+			awsTxData[9] = '9'
 			//power consumption
 			awsTxData[10] = '0'
 			awsTxData[11] = '0'
