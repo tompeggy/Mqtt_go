@@ -210,11 +210,11 @@ var f MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			awsTxData[6] = '1'
 			awsTxData[7] = 'a'
 			//Room temperature...
-			awsTxData[8] = '1'
-			awsTxData[9] = '9'
+			awsTxData[8] = rxdata[58]
+			awsTxData[9] = rxdata[59]
 			//power consumption
-			awsTxData[10] = rxdata[58]
-			awsTxData[11] = rxdata[59]
+			awsTxData[10] = '0'
+			awsTxData[11] = '0'
 			//error code...
 			awsTxData[12] = '0'
 			awsTxData[13] = '0'
